@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIAP - PPDB Online</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f1b3d;
+      --primary-light: #1e3a8a;
+      --primary-dark: #0a1128;
+      --accent: #3b82f6;
+      --accent-light: #60a5fa;
+      --sidebar-width: 270px;
+      --sidebar-collapsed: 0px;
+      --header-height: 60px;
+      --bg-light: #f1f5f9;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --text: #1a202c;
+      --text-secondary: #64748b;
+      --bg-card: #f8f9fa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg-light); color: #1a202c; overflow-x: hidden; }
+
+    /* LOGIN PAGE */
+    #loginPage { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f1b3d; background-image: url('https://i.pinimg.com/736x/fd/41/6e/fd416e14577bd4f945d80143db5b0619.jpg'); background-size: 300px; background-repeat: repeat; background-blend-mode: overlay; position: relative; overflow: hidden; }
+    #loginPage::before { content: ''; position: absolute; inset: 0; background: rgba(15,27,61,0.88); z-index: 0; }
+    .login-container { background: #fff; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); padding: 40px; width: 420px; max-width: 95vw; position: relative; z-index: 1; }
+    .login-logo { text-align: center; margin-bottom: 28px; }
+    .login-logo .logo-icon { font-size: 52px; display: block; margin-bottom: 10px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15)); }
+    .login-logo h4 { color: var(--primary); font-weight: 800; margin: 0; font-size: 28px; letter-spacing: 1px; }
+    .login-logo small { color: var(--text-muted); font-size: 12px; }
+    .role-selector { display: flex; gap: 10px; margin-bottom: 20px; }
+    .role-selector .role-btn { flex: 1; padding: 12px; border: 2px solid var(--border-color); border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fff; }
+    .role-selector .role-btn:hover { border-color: var(--accent); }
+    .role-selector .role-btn.active { border-color: var(--accent); background: #ebf8ff; color: var(--accent); }
+    .role-selector .role-btn i { font-size: 24px; display: block; margin-bottom: 4px; }
+    .role-selector .role-btn span { font-size: 13px; font-weight: 600; }
+
+    .form-floating { margin-bottom: 14px; }
+    .form-floating .form-control { border-radius: 8px; border: 1px solid var(--border-color); }
+    .form-floating .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49,130,206,0.15); }
+    .btn-primary-custom { background: linear-gradient(135deg, #1e3a8a, #3b82f6); border: none; border-radius: 8px; padding: 12px; font-weight: 600; width: 100%; transition: all 0.2s; color: #fff; }
+    .btn-primary-custom:hover { background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
+
+    /* MAIN LAYOUT */
+    #mainApp { display: none; }
+    .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-width); background: #0f1b3d; background-image: url('https://i.pinimg.com/736x/fd/41/6e/fd416e14577bd4f945d80143db5b0619.jpg'); background-size: 200px; background-repeat: repeat; background-blend-mode: overlay; color: #fff; z-index: 1000; transition: transform 0.3s; display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar::before { content: ''; position: absolute; inset: 0; background: rgba(15,27,61,0.92); z-index: 0; pointer-events: none; }
+    .sidebar > * { position: relative; z-index: 1; }
+    .sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; }
+    .sidebar-scroll::-webkit-scrollbar { width: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .sidebar-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.4); }
+    .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.12); background: rgba(0,0,0,0.2); }
+    .sidebar-header .logo-icon { font-size: 40px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+    .sidebar-header h5 { margin: 8px 0 2px; font-size: 18px; font-weight: 800; letter-spacing: 1.5px; }
+    .sidebar-header small { font-size: 10.5px; opacity: 0.65; line-height: 1.4; }
+    .sidebar-menu { padding: 10px 0; list-style: none; }
+    .sidebar-menu li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: all 0.2s; border-left: 3px solid transparent; }
+    .sidebar-menu li a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+    .sidebar-menu li a.active { background: rgba(59,130,246,0.18); color: #fff; border-left-color: #60a5fa; }
+    .sidebar-menu li a i { font-size: 18px; width: 24px; text-align: center; }
+    .sidebar-menu .menu-divider { padding: 10px 20px 5px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
+    .sidebar-menu .menu-parent { position: relative; }
+    .sidebar-menu .menu-parent > a { cursor: pointer; }
+    .sidebar-menu .menu-parent > a .menu-arrow { margin-left: auto; transition: transform 0.2s; font-size: 12px; }
+    .sidebar-menu .menu-parent.open > a .menu-arrow { transform: rotate(90deg); }
+    .sidebar-menu .submenu { list-style: none; padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease; background: rgba(0,0,0,0.1); }
+    .sidebar-menu .menu-parent.open .submenu { max-height: 200px; }
+    .sidebar-menu .submenu li a { padding: 10px 20px 10px 54px; font-size: 13px; border-left: 3px solid transparent; }
+    .sidebar-menu .submenu li a.active { border-left-color: var(--accent-light); }
+    .sidebar-footer { padding: 15px 20px; border-top: 1px solid rgba(255,255,255,0.12); width: 100%; background: rgba(0,0,0,0.25); flex-shrink: 0; }
+    .sidebar-footer .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .sidebar-footer .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #60a5fa); display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; box-shadow: 0 2px 8px rgba(59,130,246,0.4); }
+    .sidebar-footer .user-name { font-size: 13px; font-weight: 600; }
+    .sidebar-footer .user-role { font-size: 11px; opacity: 0.6; }
+
+    .main-content { margin-left: var(--sidebar-width); padding: 0; min-height: 100vh; }
+    .top-header { height: var(--header-height); background: #fff; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .top-header .page-title { font-size: 18px; font-weight: 700; color: var(--primary); }
+    .top-header .header-actions { display: flex; align-items: center; gap: 12px; }
+    .btn-toggle-sidebar { display: none; background: none; border: none; font-size: 24px; color: var(--primary); cursor: pointer; }
+    .content-area { padding: 24px; }
+
+    /* CARDS */
+    .card { border: none; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.04); }
+    .card-header { background: #fff; border-bottom: 1px solid var(--border-color); padding: 16px 20px; border-radius: 12px 12px 0 0 !important; border-left: 4px solid #3b82f6; }
+    .card-header h5 { margin: 0; font-weight: 700; font-size: 16px; color: #0f1b3d; }
+    .card-body { padding: 20px; }
+
+    /* STAT CARDS */
+    .stat-card { border-radius: 14px; padding: 20px; color: #fff; position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: transform 0.2s, box-shadow 0.2s; }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+    .stat-card .stat-icon { font-size: 48px; opacity: 0.25; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
+    .stat-card .stat-value { font-size: 32px; font-weight: 800; }
+    .stat-card .stat-label { font-size: 13px; opacity: 0.9; margin-top: 2px; font-weight: 500; }
+    .stat-card.bg-blue { background: linear-gradient(135deg, #1e40af, #3b82f6); }
+    .stat-card.bg-green { background: linear-gradient(135deg, #047857, #10b981); }
+    .stat-card.bg-orange { background: linear-gradient(135deg, #c2410c, #f97316); }
+    .stat-card.bg-purple { background: linear-gradient(135deg, #6d28d9, #8b5cf6); }
+    .stat-card.bg-teal { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+    .stat-card.bg-red { background: linear-gradient(135deg, #b91c1c, #ef4444); }
+
+    /* TABLE */
+    .table-container { overflow-x: auto; }
+    .table { font-size: 14px; margin: 0; }
+    .table thead th { background: #0f1b3d; color: #fff; border: none; font-weight: 600; white-space: nowrap; padding: 12px 16px; }
+    .table tbody td { padding: 10px 16px; vertical-align: middle; border-color: var(--border-color); }
+    .table-hover tbody tr:hover { background: #f7fafc; }
+    .action-btns .btn { padding: 4px 8px; font-size: 13px; }
+    .action-btns { position: sticky; right: 0; background: inherit; z-index: 1; }
+    .action-btns::before { content: ''; position: absolute; left: -6px; top: 0; bottom: 0; width: 6px; background: linear-gradient(to right, transparent, rgba(255,255,255,0.8)); pointer-events: none; }
+    tbody tr:hover .action-btns { background: #f7fafc; }
+    .action-btns .btn { padding: 4px 8px; font-size: 13px; }
+
+    /* SEARCH BAR */
+    .search-bar { position: relative; margin-bottom: 16px; }
+    .search-bar input { border-radius: 8px; border: 1px solid var(--border-color); padding: 8px 16px 8px 38px; width: 100%; max-width: 320px; font-size: 14px; }
+    .search-bar input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(49,130,206,0.15); }
+    .search-bar i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    /* MODAL */
+    .modal-header { background: var(--primary); color: #fff; }
+    .modal-header .btn-close { filter: invert(1); }
+    .modal-content { border: none; border-radius: 12px; }
+
+    /* BADGE */
+    .badge-jenjang { padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; }
+
+    /* FILTER KELAS BUTTON */
+    .aktif-filter { background-color: var(--primary, #1a365d) !important; color: #fff !important; border-color: var(--primary, #1a365d) !important; }
+
+    /* REPORT - Formal Kop Surat Style */
+    .report-container {
+      background: #fff;
+      padding: 15px 40px 30px;
+      max-width: 210mm;
+      margin: 0 auto;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #000;
+    }
+    .report-kop {
+      border-bottom: 3px solid #000;
+      border-top: 1px solid #000;
+      padding: 8px 0 10px;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .report-kop .kop-pemerintah {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+    .report-kop .kop-dinas {
+      font-size: 12px;
+      font-weight: bold;
+      letter-spacing: 1px;
+      margin-bottom: 2px;
+    }
+    .report-kop .kop-instansi {
+      font-size: 16px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin: 6px 0 2px;
+    }
+    .report-kop .kop-alamat {
+      font-size: 10px;
+      color: #333;
+    }
+    .report-judul {
+      text-align: center;
+      margin: 20px 0 16px;
+      border-bottom: 1px solid #000;
+      border-top: 1px solid #000;
+      padding: 6px 0;
+    }
+    .report-judul h5 {
+      font-size: 14px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin: 0;
+    }
+    .report-judul small {
+      font-size: 12px;
+      display: block;
+      margin-top: 2px;
+    }
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+      font-size: 12px;
+    }
+    .report-table th, .report-table td {
+      border: 1px solid #000;
+      padding: 5px 8px;
+    }
+    .report-table th {
+      background: #f5f5f5;
+      font-weight: bold;
+      text-align: center;
+      font-size: 11px;
+    }
+    .report-table td {
+      text-align: left;
+      vertical-align: top;
+      font-size: 12px;
+    }
+    .report-table td.center {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .report-table td.right {
+      text-align: right;
+    }
+    .report-subtitle {
+      font-weight: bold;
+      font-size: 13px;
+      margin: 20px 0 8px;
+      text-decoration: underline;
+    }
+    .signature-section {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 50px;
+    }
+    .signature-box {
+      width: 45%;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .signature-box.sig-left { text-align: left; }
+    .signature-box.sig-right { text-align: right; }
+    .signature-box .sig-spacer {
+      height: 75px;
+    }
+    .signature-box .sig-name {
+      font-weight: bold;
+      text-decoration: underline;
+      font-size: 13px;
+    }
+    .signature-box .sig-nip {
+      font-size: 12px;
+    }
+
+    /* PAGES */
+    .page-section { display: none; }
+    .page-section.active { display: block; }
+
+    /* BUTTONS */
+    .btn-accent { background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: #fff; border: none; border-radius: 8px; }
+    .btn-accent:hover { background: linear-gradient(135deg, #1e40af, #2563eb); color: #fff; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(59,130,246,0.3); }
+
+    /* PENGUMUMAN */
+    .pengumuman-item { padding: 16px; border: 1px solid var(--border-color); border-radius: 10px; margin-bottom: 12px; transition: box-shadow 0.2s; }
+    .pengumuman-item:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+    .pengumuman-item.prioritas-penting { border-left: 4px solid #e67e22; }
+    .pengumuman-item.prioritas-sangat-penting { border-left: 4px solid #e74c3c; background: #fff5f5; }
+    .pengumuman-judul { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .pengumuman-isi { font-size: 13px; color: #555; line-height: 1.7; white-space: pre-wrap; }
+    .pengumuman-meta { font-size: 11px; color: #999; margin-top: 10px; }
+    .pengumuman-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+    .pengumuman-actions { float: right; }
+    .pengumuman-upload-area { border: 2px dashed var(--border-color); border-radius: 10px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: #fafbfc; }
+    .pengumuman-upload-area:hover { border-color: var(--primary); background: #f0f4ff; }
+    .pengumuman-upload-area.dragover { border-color: var(--primary); background: #e8eeff; }
+    .pengumuman-preview-container { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    .pengumuman-preview-item { position: relative; width: 100px; height: 100px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); background: #fff; }
+    .pengumuman-preview-item img { width: 100%; height: 100%; object-fit: cover; }
+    .pengumuman-preview-item .file-icon-preview { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #f8f9fa; }
+    .pengumuman-preview-item .file-icon-preview i { font-size: 28px; color: #666; }
+    .pengumuman-preview-item .file-icon-preview span { font-size: 9px; color: #999; margin-top: 4px; padding: 0 4px; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 90px; }
+    .pengumuman-preview-item .remove-file-btn { position: absolute; top: 2px; right: 2px; width: 22px; height: 22px; border-radius: 50%; background: rgba(220,53,69,0.9); color: #fff; border: none; cursor: pointer; font-size: 12px; display: flex; align-items: center; justify-content: center; z-index: 2; line-height: 1; }
+    .pengumuman-images { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .pengumuman-images img { max-width: 200px; max-height: 150px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border-color); object-fit: cover; transition: transform 0.2s; }
+    .pengumuman-images img:hover { transform: scale(1.03); box-shadow: 0 2px 12px rgba(0,0,0,0.12); }
+    .pengumuman-files-list { margin-top: 8px; }
+    .pengumuman-files-list a { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #f0f4ff; border-radius: 6px; color: var(--primary); font-size: 13px; text-decoration: none; margin-right: 8px; margin-bottom: 6px; transition: background 0.2s; }
+    .pengumuman-files-list a:hover { background: #dce5ff; }
+    .pengumuman-inline-img-wrap { margin: 10px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
+    .pengumuman-inline-img { max-width: 100%; max-height: 400px; display: block; cursor: pointer; object-fit: contain; background: #f8f9fa; }
+    .pengumuman-inline-img-link { padding: 6px 10px; background: #f8f9fa; font-size: 11px; border-top: 1px solid var(--border-color); }
+    .pengumuman-inline-img-link a { color: var(--primary); text-decoration: none; word-break: break-all; }
+    .pengumuman-inline-img-link a:hover { text-decoration: underline; }
+
+    /* SCROLLBAR */
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+    .table-container::-webkit-scrollbar { height: 6px; }
+    .table-container::-webkit-scrollbar-track { background: #f1f1f1; }
+    .table-container::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+    /* MAX HEIGHT TABLE */
+    .max-h-table { max-height: 450px; overflow-y: auto; }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .btn-toggle-sidebar { display: block; }
+      .content-area { padding: 16px; }
+      .report-container { padding: 20px; }
+      .signature-section { flex-direction: column; gap: 30px; }
+      .signature-box { width: 100%; }
+      .login-container { padding: 24px; margin: 16px; }
+    }
+
+    /* Overlay for mobile sidebar */
+    .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 999; }
+    .sidebar-overlay.show { display: block; }
+
+    /* Print */
+    @media print {
+      .sidebar, .top-header, .no-print { display: none !important; }
+      .main-content { margin-left: 0 !important; }
+      .content-area { padding: 0 !important; }
+      #cetakSuratContent { overflow-x: visible !important; }
+      .report-container { box-shadow: none !important; padding: 0 !important; max-width: 100% !important; }
+      .page-section { display: none !important; }
+      .page-section.active { display: block !important; }
+      body { background: #fff; }
+    }
+
+
+
+    /* Tab pills */
+    .nav-pills .nav-link { border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--primary); }
+    .nav-pills .nav-link.active { background: var(--accent); }
+
+    /* Empty state */
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty-state i { font-size: 48px; opacity: 0.3; margin-bottom: 12px; }
+
+    /* Verval PIP Sekolah */
+    .verval-section-title { font-size: 15px; font-weight: 700; color: var(--primary); }
+    .verval-badge-count { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+    .checkbox-wrapper { display: flex; align-items: center; justify-content: center; }
+    .checkbox-wrapper input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
+    .usulan-row.selected { background: #ebf8ff !important; }
+    .btn-verval { font-size: 13px; padding: 6px 16px; border-radius: 8px; font-weight: 600; }
+    .btn-kirim { background: var(--success); color: #fff; border: none; border-radius: 8px; font-size: 13px; padding: 6px 16px; font-weight: 600; }
+    .btn-kirim:hover { background: #2d8659; color: #fff; }
+    .btn-kirim:disabled { opacity: 0.5; cursor: not-allowed; }
+    .status-select { font-size: 12px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--border-color); }
+  </style>
+</head>
+<body>
+<!-- LOGIN PAGE -->
+<div id="loginPage" style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1b3d;background-image:url('https://i.pinimg.com/736x/fd/41/6e/fd416e14577bd4f945d80143db5b0619.jpg');background-size:300px;background-repeat:repeat;background-blend-mode:overlay;position:relative;overflow:hidden;">
+  <div style="position:absolute;inset:0;background:rgba(15,27,61,0.88);z-index:0;"></div>
+  <div class="login-container" style="background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.35);padding:40px;width:420px;max-width:95vw;position:relative;z-index:1;">
+    <div class="login-logo" style="text-align:center;margin-bottom:28px;">
+      <span class="logo-icon" style="font-size:52px;display:block;margin-bottom:10px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.15));">🎓</span>
+      <h4 style="color:var(--primary);font-weight:800;margin:0;font-size:28px;letter-spacing:1px;">PPDB Online</h4>
+      <small style="color:var(--text-muted);font-size:12px;">Sistem Informasi Administrasi Pendidikan</small><br>
+      <small style="color:var(--primary);font-weight:600;">Korwil Bidang Pendidikan Kec. Lemahabang</small>
+    </div>
+    <div id="loginForm">
+      <div class="form-floating" style="margin-bottom:14px;">
+        <input type="text" class="form-control" id="loginUsername" placeholder="Username" style="border-radius:8px;">
+        <label>Username</label>
+      </div>
+      <div class="form-floating" style="margin-bottom:14px;">
+        <input type="password" class="form-control" id="loginPassword" placeholder="Password" style="border-radius:8px;">
+        <label>Password</label>
+      </div>
+      <button class="btn btn-primary-custom mt-2" onclick="handleLogin()">Masuk</button>
+      <div id="loginError" class="text-danger text-center mt-2" style="font-size:13px;display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none;">
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <span class="logo-icon">🎓</span>
+      <h5>PPDB Online</h5>
+      <small>Korwil Bidang Pendidikan<br>Kec. Lemahabang</small>
+    </div>
+    <div class="sidebar-scroll">
+    <ul class="sidebar-menu" id="sidebarMenu">
+    </ul>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div>
+          <div class="user-name" id="sidebarUserName">Admin</div>
+          <div class="user-role" id="sidebarUserRole">-</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="main-content">
+    <header class="top-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="btn-toggle-sidebar" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <span class="page-title" id="pageTitle">PPDB Online</span>
+      </div>
+      <div class="header-actions no-print">
+        <span id="fbStatusIndicator" style="font-size:18px;cursor:help;" title="Firebase: Menunggu..."><i class="bi bi-cloud-arrow-up text-warning"></i></span>
+      </div>
+    </header>
+    <div class="content-area">
+
+      <!-- ======== PPDB PENGATURAN ======== -->
+      <div id="page-ppdb-pengaturan" class="page-section">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5><i class="bi bi-calendar-check me-2"></i>Pengaturan PPDB</h5>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info" style="font-size:13px;">
+              <i class="bi bi-info-circle me-1"></i>Atur tanggal mulai dan akhir pendaftaran, serta tanggal pengumuman hasil seleksi. Pengaturan ini akan tampil di halaman PPDB Online.
+            </div>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <label class="form-label fw-bold" style="font-size:13px"><i class="bi bi-calendar-event me-1"></i>Tanggal Mulai Pendaftaran</label>
+                <input type="date" class="form-control" id="ppdbTglMulai" style="font-size:14px">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold" style="font-size:13px"><i class="bi bi-calendar-x me-1"></i>Tanggal Akhir Pendaftaran</label>
+                <input type="date" class="form-control" id="ppdbTglAkhir" style="font-size:14px">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold" style="font-size:13px"><i class="bi bi-megaphone me-1"></i>Tanggal Pengumuman</label>
+                <input type="date" class="form-control" id="ppdbTglUmum" style="font-size:14px">
+              </div>
+            </div>
+            <button class="btn btn-accent" onclick="ppdbSimpanPengaturan()" style="font-size:14px">
+              <i class="bi bi-save me-1"></i>Simpan Pengaturan
+            </button>
+            <div id="ppdbPengaturanStatus" style="margin-top:12px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PPDB - HASIL PENDAFTARAN (Sekolah) ======== -->
+      <div id="page-ppdb-pendaftaran" class="page-section">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <h5><i class="bi bi-mortarboard me-2"></i>Hasil Pendaftaran PPDB</h5>
+            <button class="btn btn-sm btn-danger" onclick="ppdbHapusTerpilih()" id="btnHapusTerpilih" style="display:none;"><i class="bi bi-trash3 me-1"></i>Hapus Terpilih</button>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered" style="font-size:13px">
+                <thead><tr><th style="width:40px;text-align:center;"><input type="checkbox" id="ppdb_select_all" onchange="ppdbToggleAll(this)"></th><th>No</th><th>No Pendaftaran</th><th>Nama</th><th>Jenis Kelamin</th><th>Asal Sekolah</th><th>Tgl Daftar</th><th>Status</th><th>Aksi</th></tr></thead>
+                <tbody id="ppdbPendaftaranBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PPDB - VERIFIKASI SISWA DITERIMA (Sekolah) ======== -->
+      <div id="page-ppdb-verifikasi" class="page-section">
+        <div class="card">
+          <div class="card-header"><h5><i class="bi bi-mortarboard me-2"></i>Verifikasi Peserta Didik Diterima</h5></div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered" style="font-size:13px">
+                <thead><tr><th>No</th><th>No Pendaftaran</th><th>Nama</th><th>Jenis Kelamin</th><th>Asal Sekolah</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
+                <tbody id="ppdbVerifikasiBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PPDB - HASIL REGISTRASI (Sekolah) ======== -->
+      <div id="page-ppdb-registrasi" class="page-section">
+        <div class="card">
+          <div class="card-header"><h5><i class="bi bi-mortarboard me-2"></i>Hasil Registrasi PPDB</h5></div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered" style="font-size:13px">
+                <thead><tr><th>No</th><th>No Pendaftaran</th><th>Nama</th><th>Sekolah</th><th>File Name</th><th>Tgl Upload</th><th>Aksi</th></tr></thead>
+                <tbody id="ppdbRegistrasiBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PPDB - REKAP PENDAFTARAN (Admin) ======== -->
+      <div id="page-ppdb-rekap-daftar" class="page-section">
+        <div class="card">
+          <div class="card-header"><h5><i class="bi bi-mortarboard me-2"></i>Rekap Pendaftaran PPDB</h5></div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered" style="font-size:13px">
+                <thead><tr><th>No</th><th>Nama Sekolah</th><th>Total Pendaftaran</th><th>Laki-laki</th><th>Perempuan</th></tr></thead>
+                <tbody id="ppdbRekapDaftarBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======== PPDB - REKAP SISWA DITERIMA (Admin) ======== -->
+      <div id="page-ppdb-rekap-diterima" class="page-section">
+        <div class="card">
+          <div class="card-header"><h5><i class="bi bi-mortarboard me-2"></i>Rekap Peserta Didik Diterima PPDB</h5></div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-bordered" style="font-size:13px">
+                <thead><tr><th>No</th><th>Nama Sekolah</th><th>Total Diterima</th><th>Laki-laki</th><th>Perempuan</th></tr></thead>
+                <tbody id="ppdbRekapDiterimaBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ============ GLOBAL STATE ============
+let currentUser = null;
+const MONTHS = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+// ============ FIREBASE INIT ============
+var firebaseConfig = {
+  apiKey: "AIzaSyDFadEnVo9fX64tw7uDTzT0ESoE5JAcx6c",
+  authDomain: "aplikasi-siap-ef85e.firebaseapp.com",
+  databaseURL: "https://aplikasi-siap-ef85e-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "aplikasi-siap-ef85e",
+  storageBucket: "aplikasi-siap-ef85e.firebasestorage.app",
+  messagingSenderId: "209198927274",
+  appId: "1:209198927274:web:2145b0e6803d5ff98b6fd3"
+};
+firebase.initializeApp(firebaseConfig);
+
+// ============ UTILITIES ============
+function PV(snap) {
+  if (!snap || !snap.val()) return [];
+  var arr = [];
+  var obj = snap.val();
+  if (Array.isArray(obj)) { arr = obj; } else {
+    Object.keys(obj).forEach(function(k) { var item = obj[k]; if (item) { item._key = k; arr.push(item); } });
+  }
+  return arr;
+}
+function escapeHtml(str) {
+  if (!str) return '';
+  var div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function getRecords(type) { return JSON.parse(localStorage.getItem('siap_records_' + type) || '[]'); }
+function saveRecords(type, records) { localStorage.setItem('siap_records_' + type, JSON.stringify(records)); }
+function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2, 9); }
+function now() { return new Date().toISOString(); }
+function getAdminPassword() {
+  var pw = localStorage.getItem('siap_admin_password');
+  if (!pw) { pw = 'admin123'; localStorage.setItem('siap_admin_password', pw); }
+  return pw;
+}
+function getAdmin2Password() {
+  var pw = localStorage.getItem('siap_admin2_password');
+  if (!pw) { pw = 'operator123'; localStorage.setItem('siap_admin2_password', pw); }
+  return pw;
+}
+function toggleSubmenu(el) { el.classList.toggle('open'); }
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('show');
+}
+function updateFirebaseStatus() {
+  var el = document.getElementById('fbStatusIndicator');
+  if (el) {
+    el.innerHTML = '<i class="bi bi-cloud-arrow-up text-success"></i>';
+    el.title = 'Firebase: Terhubung';
+  }
+}
+function toProper(str) {
+  if (!str) return '';
+  var result = String(str).toLowerCase().replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+  var abbrevs = ['SD','SMP','SMA','SMK','MI','MTs','MA','TK','PAUD','RA'];
+  abbrevs.forEach(function(abbr) {
+    var regex = new RegExp('\\b' + abbr + '\\b', 'g');
+    result = result.replace(regex, abbr);
+  });
+  return result;
+}
+
+// ============ LOGIN ============
+function handleLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value.trim();
+  const errorEl = document.getElementById('loginError');
+  errorEl.style.display = 'none';
+  if (!username || !password) { errorEl.textContent = 'Username dan Password harus diisi!'; errorEl.style.display = 'block'; return; }
+  // Admin login
+  if (username === 'Admin_01' && password === getAdminPassword()) {
+    currentUser = { role: 'admin', name: 'Admin Korwil', adminLevel: 'full' };
+    localStorage.setItem('siap_session', JSON.stringify(currentUser));
+    showMainApp();
+    return;
+  }
+  if (username === 'Admin_02' && password === getAdmin2Password()) {
+    currentUser = { role: 'admin', name: 'Admin Operator', adminLevel: 'limited' };
+    localStorage.setItem('siap_session', JSON.stringify(currentUser));
+    showMainApp();
+    return;
+  }
+  // Sekolah login
+  const sekolahs = getRecords('sekolah');
+  const match = sekolahs.find(function(s) { return s.username && s.username === username && s.password === password; });
+  if (match) {
+    currentUser = { role: 'sekolah', name: match.nama_sekolah, schoolId: match.id };
+    localStorage.setItem('siap_session', JSON.stringify(currentUser));
+    showMainApp();
+    return;
+  }
+  errorEl.textContent = 'Username atau Password salah!';
+  errorEl.style.display = 'block';
+}
+
+function logout() {
+  localStorage.removeItem('siap_session');
+  currentUser = null;
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+}
+
+function showMainApp() {
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'block';
+  buildSidebarMenu();
+  // Navigate to first available page
+  if (currentUser.role === 'admin') {
+    navigateTo('ppdb-rekap-daftar');
+  } else {
+    navigateTo('ppdb-pengaturan');
+  }
+}
+
+function buildSidebarMenu() {
+  var menu = document.getElementById('sidebarMenu');
+  var avatar = document.getElementById('userAvatar');
+  var userName = document.getElementById('sidebarUserName');
+  var userRole = document.getElementById('sidebarUserRole');
+  avatar.textContent = currentUser.name.charAt(0).toUpperCase();
+  userName.textContent = currentUser.name;
+  var html = '';
+  if (currentUser.role === 'admin') {
+    userRole.textContent = currentUser.adminLevel === 'full' ? 'Admin Korwil' : 'Admin Operator';
+    html = `
+      <li><a href="#" class="active" data-page="ppdb-rekap-daftar" onclick="navigateTo('ppdb-rekap-daftar')"><i class="bi bi-list-ul"></i>Rekap Pendaftaran</a></li>
+      <li><a href="#" data-page="ppdb-rekap-diterima" onclick="navigateTo('ppdb-rekap-diterima')"><i class="bi bi-check-circle"></i>Rekap Diterima</a></li>
+      <div class="menu-divider">Pengaturan</div>
+      <li><a href="#" onclick="logout()"><i class="bi bi-box-arrow-left"></i>Logout</a></li>
+    `;
+  } else {
+    userRole.textContent = 'Sekolah';
+    html = `
+      <li><a href="#" class="active" data-page="ppdb-pengaturan" onclick="navigateTo('ppdb-pengaturan')"><i class="bi bi-calendar-check"></i>Pengaturan PPDB</a></li>
+      <li><a href="#" data-page="ppdb-pendaftaran" onclick="navigateTo('ppdb-pendaftaran')"><i class="bi bi-list-ul"></i>Hasil Pendaftaran</a></li>
+      <li><a href="#" data-page="ppdb-verifikasi" onclick="navigateTo('ppdb-verifikasi')"><i class="bi bi-check-circle"></i>Verifikasi Diterima</a></li>
+      <li><a href="#" data-page="ppdb-registrasi" onclick="navigateTo('ppdb-registrasi')"><i class="bi bi-person-check"></i>Hasil Registrasi</a></li>
+      <div class="menu-divider">Pengaturan</div>
+      <li><a href="#" onclick="logout()"><i class="bi bi-box-arrow-left"></i>Logout</a></li>
+    `;
+  }
+  menu.innerHTML = html;
+}
+
+function navigateTo(page) {
+  document.querySelectorAll('.page-section').forEach(function(p) { p.classList.remove('active'); });
+  var el = document.getElementById('page-' + page);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.sidebar-menu a').forEach(function(a) { a.classList.remove('active'); });
+  var link = document.querySelector('.sidebar-menu a[data-page="' + page + '"]');
+  if (link) link.classList.add('active');
+  var titles = {
+    'ppdb-pengaturan': 'PPDB - Pengaturan',
+    'ppdb-pendaftaran': 'PPDB - Hasil Pendaftaran',
+    'ppdb-verifikasi': 'PPDB - Verifikasi Peserta Didik Diterima',
+    'ppdb-registrasi': 'PPDB - Hasil Registrasi',
+    'ppdb-rekap-daftar': 'PPDB - Rekap Pendaftaran',
+    'ppdb-rekap-diterima': 'PPDB - Rekap Peserta Didik Diterima'
+  };
+  document.getElementById('pageTitle').textContent = titles[page] || 'PPDB Online';
+  // Render page content
+  if (page === 'ppdb-pengaturan') renderPPDBPengaturan();
+  if (page === 'ppdb-pendaftaran') renderPPDBPendaftaran();
+  if (page === 'ppdb-verifikasi') renderPPDBVerifikasi();
+  if (page === 'ppdb-registrasi') renderPPDBRegistrasi();
+  if (page === 'ppdb-rekap-daftar') renderPPDBRekapDaftar();
+  if (page === 'ppdb-rekap-diterima') renderPPDBRekapDiterima();
+}
+
+// ============ FIREBASE STATUS ============
+(function checkFirebase() {
+  var testRef = firebase.database().ref('.info/connected');
+  testRef.on('value', function(snap) {
+    var el = document.getElementById('fbStatusIndicator');
+    if (el) {
+      if (snap.val() === true) {
+        el.innerHTML = '<i class="bi bi-cloud-check-fill text-success"></i>';
+        el.title = 'Firebase: Terhubung';
+      } else {
+        el.innerHTML = '<i class="bi bi-cloud-slash text-danger"></i>';
+        el.title = 'Firebase: Tidak terhubung';
+      }
+    }
+  });
+  // Note: sekolah sync handled in PPDB init below
+})();
+
+// ============ FIREBASE PPDB INIT ============
+(function() {
+  // Firebase already initialized at top of script
+
+  // Global PPDB data
+  window._ppdbPendaftaran = [];
+  window._ppdbDiterima = [];
+  window._ppdbRegistrasi = [];
+  window._ppdbSekolah = [];
+
+  // Realtime listeners
+  firebase.database().ref('siap_ppdb_pendaftaran').on('value', function(snap) {
+    window._ppdbPendaftaran = PV(snap);
+  });
+  firebase.database().ref('siap_ppdb_diterima').on('value', function(snap) {
+    window._ppdbDiterima = PV(snap);
+  });
+  firebase.database().ref('siap_ppdb_registrasi').on('value', function(snap) {
+    window._ppdbRegistrasi = PV(snap);
+  });
+  firebase.database().ref('siap_records_sekolah').on('value', function(snap) {
+    window._ppdbSekolah = PV(snap);
+    // Sync sekolah data to localStorage for login system
+    try {
+      var fbSchools = window._ppdbSekolah || [];
+      if (fbSchools.length > 0) {
+        var localSchools = getRecords('sekolah');
+        // Merge: add Firebase records that don't exist locally (by id/_key)
+        var localIds = localSchools.map(function(s) { return s.id; });
+        fbSchools.forEach(function(fb) {
+          var existingIdx = localIds.indexOf(fb.id || fb._key);
+          if (existingIdx === -1) {
+            // New record from Firebase - add to localStorage
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            localSchools.push(rec);
+          } else {
+            // Existing record - update username/password if missing locally but present in Firebase
+            var localRec = localSchools[existingIdx];
+            if ((!localRec.username && fb.username) || (!localRec.password && fb.password)) {
+              if (fb.username) localRec.username = fb.username;
+              if (fb.password) localRec.password = fb.password;
+            }
+          }
+        });
+        saveRecords('sekolah', localSchools);
+      }
+    } catch(e) { console.warn('Sync sekolah error:', e); }
+  });
+  // Sync pegawai from Firebase
+  firebase.database().ref('siap_records_pegawai').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('pegawai');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('pegawai', local);
+      }
+    } catch(e) { console.warn('Sync pegawai error:', e); }
+  });
+  // Sync siswa from Firebase
+  firebase.database().ref('siap_records_siswa').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('siswa');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('siswa', local);
+      }
+    } catch(e) { console.warn('Sync siswa error:', e); }
+  });
+  // Sync sarpras from Firebase
+  firebase.database().ref('siap_records_sarpras').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('sarpras');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('sarpras', local);
+      }
+    } catch(e) { console.warn('Sync sarpras error:', e); }
+  });
+  // Sync pegawai_korwil from Firebase
+  firebase.database().ref('siap_records_pegawai_korwil').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('pegawai_korwil');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('pegawai_korwil', local);
+      }
+    } catch(e) { console.warn('Sync pegawai_korwil error:', e); }
+  });
+  // Sync siswa_lulusan from Firebase
+  firebase.database().ref('siap_records_siswa_lulusan').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('siswa_lulusan');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('siswa_lulusan', local);
+      }
+    } catch(e) { console.warn('Sync siswa_lulusan error:', e); }
+  });
+  // Sync pengumuman from Firebase
+  firebase.database().ref('siap_records_pengumuman').on('value', function(snap) {
+    try {
+      var fbData = PV(snap);
+      if (fbData && fbData.length > 0) {
+        var local = getRecords('pengumuman');
+        var localIds = local.map(function(r) { return r.id; });
+        var hasNew = false;
+        fbData.forEach(function(fb) {
+          var key = fb.id || fb._key;
+          if (!key) return;
+          if (localIds.indexOf(key) === -1) {
+            var rec = Object.assign({}, fb);
+            if (!rec.id && rec._key) rec.id = rec._key;
+            local.push(rec);
+            hasNew = true;
+          }
+        });
+        if (hasNew) saveRecords('pengumuman', local);
+      }
+    } catch(e) { console.warn('Sync pengumuman error:', e); }
+  });
+  window._ppdbPengaturan = [];
+  firebase.database().ref('siap_ppdb_pengaturan').on('value', function(snap) {
+    window._ppdbPengaturan = PV(snap);
+  });
+})();
+
+// ============ PPDB RENDER FUNCTIONS ============
+
+function renderPPDBPendaftaran() {
+  var body = document.getElementById('ppdbPendaftaranBody');
+  if (!body) return;
+  var data = window._ppdbPendaftaran || [];
+  var schoolName = currentUser ? currentUser.name : '';
+  var filtered = data.filter(function(r) { return r.sekolah_tujuan === schoolName; });
+  // Sort by nama
+  filtered.sort(function(a, b) { return (a.nama || '').localeCompare(b.nama || ''); });
+  if (filtered.length === 0) {
+    body.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Belum ada data pendaftaran.</td></tr>';
+    return;
+  }
+  var html = '';
+  filtered.forEach(function(r, i) {
+    var statusBadge = '<span class="badge bg-warning text-dark">Menunggu</span>';
+    if (r.status === 'Diterima') statusBadge = '<span class="badge bg-success">Diterima</span>';
+    else if (r.status === 'Ditolak') statusBadge = '<span class="badge bg-danger">Ditolak</span>';
+    html += '<tr id="row_ppdb_' + escapeHtml(r.no_pendaftaran || '') + '">' +
+      '<td class="text-center"><input type="checkbox" class="ppdb-row-check" value="' + escapeHtml(r.no_pendaftaran || '') + '"></td>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(r.no_pendaftaran || '-') + '</td>' +
+      '<td>' + escapeHtml(r.nama || '-') + '</td>' +
+      '<td>' + escapeHtml(r.jenis_kelamin || '-') + '</td>' +
+      '<td>' + escapeHtml(r.asal_sekolah || '-') + '</td>' +
+      '<td>' + (r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '-') + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td class="action-btns"><button class="btn btn-sm btn-danger" onclick="ppdbHapusSatu(\'' + escapeHtml(r.no_pendaftaran || '') + '\')" title="Hapus"><i class="bi bi-trash3"></i> Hapus</button></td>' +
+      '</tr>';
+  });
+  body.innerHTML = html;
+  // Attach change listener to checkboxes
+  var checks = body.querySelectorAll('.ppdb-row-check');
+  checks.forEach(function(cb) {
+    cb.addEventListener('change', ppdbUpdateSelectAll);
+  });
+  ppdbUpdateSelectAll();
+}
+
+// Toggle all checkboxes in PPDB Hasil Pendaftaran
+function ppdbToggleAll(el) {
+  var checks = document.querySelectorAll('.ppdb-row-check');
+  checks.forEach(function(cb) { cb.checked = el.checked; });
+  ppdbUpdateSelectAll();
+}
+
+// Update select-all checkbox state
+function ppdbUpdateSelectAll() {
+  var checks = document.querySelectorAll('.ppdb-row-check');
+  var selectAll = document.getElementById('ppdb_select_all');
+  var btnHapus = document.getElementById('btnHapusTerpilih');
+  if (!checks.length) {
+    if (selectAll) selectAll.checked = false;
+    if (btnHapus) btnHapus.style.display = 'none';
+    return;
+  }
+  var checked = document.querySelectorAll('.ppdb-row-check:checked');
+  if (selectAll) selectAll.checked = checked.length === checks.length;
+  if (btnHapus) btnHapus.style.display = checked.length > 0 ? 'inline-block' : 'none';
+}
+
+// Delete single pendaftar
+function ppdbHapusSatu(noPendaftaran) {
+  if (!noPendaftaran) return;
+  if (!confirm('Yakin ingin menghapus data pendaftaran ' + noPendaftaran + '?\nData yang sudah dihapus tidak dapat dikembalikan.')) return;
+  var ref = firebase.database().ref('siap_ppdb_pendaftaran/' + noPendaftaran);
+  ref.remove().then(function() {
+    // Also remove from siap_ppdb_diterima if exists
+    firebase.database().ref('siap_ppdb_diterima/' + noPendaftaran).remove();
+    // Also remove from siap_ppdb_registrasi if exists
+    firebase.database().ref('siap_ppdb_registrasi/' + noPendaftaran).remove();
+    alert('Data pendaftaran ' + noPendaftaran + ' berhasil dihapus.');
+  }).catch(function(err) {
+    alert('Gagal menghapus: ' + err.message);
+  });
+}
+
+// Delete multiple selected pendaftar
+function ppdbHapusTerpilih() {
+  var checks = document.querySelectorAll('.ppdb-row-check:checked');
+  if (checks.length === 0) {
+    alert('Pilih data yang ingin dihapus.');
+    return;
+  }
+  if (!confirm('Yakin ingin menghapus ' + checks.length + ' data pendaftaran yang dipilih?\nData yang sudah dihapus tidak dapat dikembalikan.')) return;
+  var total = checks.length;
+  var deleted = 0;
+  checks.forEach(function(cb) {
+    var noPendaftaran = cb.value;
+    firebase.database().ref('siap_ppdb_pendaftaran/' + noPendaftaran).remove().then(function() {
+      firebase.database().ref('siap_ppdb_diterima/' + noPendaftaran).remove();
+      firebase.database().ref('siap_ppdb_registrasi/' + noPendaftaran).remove();
+      deleted++;
+      if (deleted === total) {
+        alert(total + ' data pendaftaran berhasil dihapus.');
+      }
+    });
+  });
+  // Uncheck all
+  var selectAll = document.getElementById('ppdb_select_all');
+  if (selectAll) selectAll.checked = false;
+  if (document.getElementById('btnHapusTerpilih')) document.getElementById('btnHapusTerpilih').style.display = 'none';
+}
+
+function renderPPDBVerifikasi() {
+  var body = document.getElementById('ppdbVerifikasiBody');
+  if (!body) return;
+  var data = window._ppdbPendaftaran || [];
+  var schoolName = currentUser ? currentUser.name : '';
+  var filtered = data.filter(function(r) { return r.sekolah_tujuan === schoolName && r.status === 'Menunggu'; });
+  filtered.sort(function(a, b) { return (a.nama || '').localeCompare(b.nama || ''); });
+  if (filtered.length === 0) {
+    body.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Tidak ada siswa yang menunggu verifikasi.</td></tr>';
+    return;
+  }
+  var html = '';
+  filtered.forEach(function(r, i) {
+    html += '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(r.no_pendaftaran || '-') + '</td>' +
+      '<td>' + escapeHtml(r.nama || '-') + '</td>' +
+      '<td>' + escapeHtml(r.jenis_kelamin || '-') + '</td>' +
+      '<td>' + escapeHtml(r.asal_sekolah || '-') + '</td>' +
+      '<td>' + (r.created_at ? new Date(r.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '-') + '</td>' +
+      '<td>' +
+        '<button class="btn btn-sm btn-success me-1" onclick="ppdbTerima(\'' + escapeHtml(r.no_pendaftaran || '') + '\')"><i class="bi bi-check-lg me-1"></i>Terima</button>' +
+        '<button class="btn btn-sm btn-danger" onclick="ppdbTolak(\'' + escapeHtml(r.no_pendaftaran || '') + '\')"><i class="bi bi-x-lg me-1"></i>Tolak</button>' +
+      '</td>' +
+      '</tr>';
+  });
+  body.innerHTML = html;
+}
+
+function ppdbTerima(noPendaftaran) {
+  if (!confirm('Terima siswa ini?')) return;
+  var data = window._ppdbPendaftaran || [];
+  var record = data.find(function(r) { return r.no_pendaftaran === noPendaftaran; });
+  if (!record) { alert('Data tidak ditemukan.'); return; }
+
+  // Write to siap_ppdb_diterima
+  var diterimaRef = firebase.database().ref('siap_ppdb_diterima/' + noPendaftaran);
+  diterimaRef.set(record).then(function() {
+    // Update status in siap_ppdb_pendaftaran
+    var pendaftaranRef = firebase.database().ref('siap_ppdb_pendaftaran/' + noPendaftaran + '/status');
+    pendaftaranRef.set('Diterima').then(function() {
+      alert('Peserta didik berhasil diterima.');
+      renderPPDBVerifikasi();
+    }).catch(function(e) { alert('Gagal update status: ' + e.message); });
+  }).catch(function(e) { alert('Gagal menyimpan: ' + e.message); });
+}
+
+function ppdbTolak(noPendaftaran) {
+  if (!confirm('Tolak siswa ini?')) return;
+  var pendaftaranRef = firebase.database().ref('siap_ppdb_pendaftaran/' + noPendaftaran + '/status');
+  pendaftaranRef.set('Ditolak').then(function() {
+    alert('Peserta didik ditolak.');
+    renderPPDBVerifikasi();
+  }).catch(function(e) { alert('Gagal: ' + e.message); });
+}
+
+function renderPPDBRegistrasi() {
+  var body = document.getElementById('ppdbRegistrasiBody');
+  if (!body) return;
+  var diterima = window._ppdbDiterima || [];
+  var registrasi = window._ppdbRegistrasi || [];
+  var schoolName = currentUser ? currentUser.name : '';
+
+  // Sort diterima by nama
+  diterima.sort(function(a, b) { return (a.nama || '').localeCompare(b.nama || ''); });
+
+  // Find registrations that have file data, for this school
+  var html = '';
+  var count = 0;
+  diterima.forEach(function(r) {
+    if (r.sekolah_tujuan !== schoolName) return;
+    // Find matching registration record
+    var reg = registrasi.find(function(rg) { return rg.no_pendaftaran === r.no_pendaftaran; });
+    if (!reg || !reg.file_data) return;
+    count++;
+    html += '<tr>' +
+      '<td>' + count + '</td>' +
+      '<td>' + escapeHtml(r.no_pendaftaran || '-') + '</td>' +
+      '<td>' + escapeHtml(r.nama || '-') + '</td>' +
+      '<td>' + escapeHtml(r.sekolah_tujuan || '-') + '</td>' +
+      '<td>' + escapeHtml(reg.file_name || '-') + '</td>' +
+      '<td>' + (reg.uploaded_at ? new Date(reg.uploaded_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}) : '-') + '</td>' +
+      '<td><button class="btn btn-sm btn-primary" onclick="ppdbViewFile(\'' + escapeHtml(r.no_pendaftaran || '') + '\')"><i class="bi bi-eye me-1"></i>Lihat</button></td>' +
+      '</tr>';
+  });
+  if (count === 0) {
+    body.innerHTML = '<tr><td colspan="7" class="text-center text-muted">Belum ada data registrasi.</td></tr>';
+  } else {
+    body.innerHTML = html;
+  }
+}
+
+function ppdbViewFile(noPendaftaran) {
+  var registrasi = window._ppdbRegistrasi || [];
+  var reg = registrasi.find(function(r) { return r.no_pendaftaran === noPendaftaran; });
+  if (!reg || !reg.file_data || !reg.file_data.startsWith('data:')) { alert('File tidak ditemukan.'); return; }
+  var win = window.open('', '_blank');
+  if (reg.file_name && (reg.file_name.toLowerCase().endsWith('.pdf'))) {
+    win.document.write('<html><head><title>' + escapeHtml(reg.file_name) + '</title></head><body style="margin:0;"><iframe src="' + reg.file_data + '" style="width:100%;height:100vh;border:none;"></iframe></body></html>');
+  } else {
+    win.document.write('<html><head><title>' + escapeHtml(reg.file_name) + '</title></head><body style="margin:0;display:flex;justify-content:center;align-items:center;min-height:100vh;background:#f0f0f0;"><img src="' + reg.file_data + '" style="max-width:100%;max-height:100vh;object-fit:contain;"></body></html>');
+  }
+  win.document.close();
+}
+
+function renderPPDBRekapDaftar() {
+  var body = document.getElementById('ppdbRekapDaftarBody');
+  if (!body) return;
+  var data = window._ppdbPendaftaran || [];
+  var grouped = {};
+  data.forEach(function(r) {
+    var school = r.sekolah_tujuan || 'Tidak Diketahui';
+    if (!grouped[school]) grouped[school] = { total: 0, l: 0, p: 0 };
+    grouped[school].total++;
+    if (r.jenis_kelamin === 'Laki-laki') grouped[school].l++;
+    else if (r.jenis_kelamin === 'Perempuan') grouped[school].p++;
+  });
+  var keys = Object.keys(grouped).sort();
+  var html = '';
+  var grandTotal = 0, grandL = 0, grandP = 0;
+  keys.forEach(function(k, i) {
+    var g = grouped[k];
+    grandTotal += g.total;
+    grandL += g.l;
+    grandP += g.p;
+    html += '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(k) + '</td>' +
+      '<td class="text-center">' + g.total + '</td>' +
+      '<td class="text-center">' + g.l + '</td>' +
+      '<td class="text-center">' + g.p + '</td>' +
+      '</tr>';
+  });
+  html += '<tr style="font-weight:bold;background:#f0f4f8;">' +
+    '<td colspan="2">TOTAL</td>' +
+    '<td class="text-center">' + grandTotal + '</td>' +
+    '<td class="text-center">' + grandL + '</td>' +
+    '<td class="text-center">' + grandP + '</td>' +
+    '</tr>';
+  if (keys.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Belum ada data pendaftaran.</td></tr>';
+  } else {
+    body.innerHTML = html;
+  }
+}
+
+function renderPPDBRekapDiterima() {
+  var body = document.getElementById('ppdbRekapDiterimaBody');
+  if (!body) return;
+  var data = window._ppdbDiterima || [];
+  var grouped = {};
+  data.forEach(function(r) {
+    var school = r.sekolah_tujuan || 'Tidak Diketahui';
+    if (!grouped[school]) grouped[school] = { total: 0, l: 0, p: 0 };
+    grouped[school].total++;
+    if (r.jenis_kelamin === 'Laki-laki') grouped[school].l++;
+    else if (r.jenis_kelamin === 'Perempuan') grouped[school].p++;
+  });
+  var keys = Object.keys(grouped).sort();
+  var html = '';
+  var grandTotal = 0, grandL = 0, grandP = 0;
+  keys.forEach(function(k, i) {
+    var g = grouped[k];
+    grandTotal += g.total;
+    grandL += g.l;
+    grandP += g.p;
+    html += '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escapeHtml(k) + '</td>' +
+      '<td class="text-center">' + g.total + '</td>' +
+      '<td class="text-center">' + g.l + '</td>' +
+      '<td class="text-center">' + g.p + '</td>' +
+      '</tr>';
+  });
+  html += '<tr style="font-weight:bold;background:#f0f4f8;">' +
+    '<td colspan="2">TOTAL</td>' +
+    '<td class="text-center">' + grandTotal + '</td>' +
+    '<td class="text-center">' + grandL + '</td>' +
+    '<td class="text-center">' + grandP + '</td>' +
+    '</tr>';
+  if (keys.length === 0) {
+    body.innerHTML = '<tr><td colspan="5" class="text-center text-muted">Belum ada data peserta didik diterima.</td></tr>';
+  } else {
+    body.innerHTML = html;
+  }
+}
+
+function renderPPDBPengaturan() {
+  var settings = window._ppdbPengaturan || [];
+  var schoolName = currentUser ? currentUser.name : '';
+  var existing = settings.find(function(s) { return s.nama_sekolah === schoolName; });
+  
+  document.getElementById('ppdbTglMulai').value = existing ? (existing.tanggal_mulai || '') : '';
+  document.getElementById('ppdbTglAkhir').value = existing ? (existing.tanggal_akhir || '') : '';
+  document.getElementById('ppdbTglUmum').value = existing ? (existing.tanggal_pengumuman || '') : '';
+  
+  var statusEl = document.getElementById('ppdbPengaturanStatus');
+  if (existing && existing.tanggal_mulai) {
+    statusEl.innerHTML = '<div class="alert alert-success" style="font-size:12px;margin:0"><i class="bi bi-check-circle me-1"></i>Pengaturan tersimpan. Pendaftaran: ' + 
+      new Date(existing.tanggal_mulai).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) + ' s/d ' + 
+      new Date(existing.tanggal_akhir).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) + 
+      ' | Pengumuman: ' + new Date(existing.tanggal_pengumuman).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) + '</div>';
+  } else {
+    statusEl.innerHTML = '<div class="alert alert-warning" style="font-size:12px;margin:0"><i class="bi bi-exclamation-triangle me-1"></i>Belum ada pengaturan PPDB untuk sekolah Anda.</div>';
+  }
+}
+
+function ppdbSimpanPengaturan() {
+  var schoolName = currentUser ? currentUser.name : '';
+  if (!schoolName) { alert('Data sekolah tidak ditemukan.'); return; }
+  
+  var tglMulai = document.getElementById('ppdbTglMulai').value;
+  var tglAkhir = document.getElementById('ppdbTglAkhir').value;
+  var tglUmum = document.getElementById('ppdbTglUmum').value;
+  
+  if (!tglMulai || !tglAkhir || !tglUmum) {
+    alert('Semua tanggal harus diisi.');
+    return;
+  }
+  if (new Date(tglAkhir) < new Date(tglMulai)) {
+    alert('Tanggal akhir tidak boleh sebelum tanggal mulai.');
+    return;
+  }
+  
+  var data = {
+    nama_sekolah: schoolName,
+    tanggal_mulai: tglMulai,
+    tanggal_akhir: tglAkhir,
+    tanggal_pengumuman: tglUmum,
+    updated_at: new Date().toISOString()
+  };
+  
+  var ref = firebase.database().ref('siap_ppdb_pengaturan/' + schoolName.replace(/\./g, '_'));
+  ref.set(data).then(function() {
+    alert('Pengaturan PPDB berhasil disimpan!');
+    renderPPDBPengaturan();
+  }).catch(function(e) {
+    alert('Gagal menyimpan: ' + e.message);
+  });
+}
+
+// ============ INIT ============
+(function init() {
+  try {
+    const session = JSON.parse(localStorage.getItem('siap_session'));
+    if (session && session.role) {
+      currentUser = session;
+      showMainApp();
+      return;
+    }
+  } catch(e) {}
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('mainApp').style.display = 'none';
+})();
+</script>
+</body>
+</html>
